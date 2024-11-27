@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(raylib_cpp_example)
+project(dorufuro_raylib)
 
 # raylib
 find_package(raylib QUIET)
@@ -34,8 +34,9 @@ set(SOURCES main.cpp)
 add_executable(${PROJECT_NAME} ${SOURCES}
     gamemap.h gamemap.cpp
     enemies.h enemies.cpp
-    player.h player.cpp)
-set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 11)
+    player.h player.cpp
+    animation.h animation.cpp)
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
 target_link_libraries(${PROJECT_NAME} PUBLIC raylib raylib_cpp)
 
 # Web Configurations

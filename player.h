@@ -7,20 +7,33 @@
 #include "raylib-cpp.hpp"
 #include "gamemap.h"
 #include "enemies.h"
+#include <limits>
 class Bullet
 {
 public:
 
     float speed;
     raylib::Vector2 position;
+    double stay = 0.1;
+    double hit_time = 0;
+    bool still = true;
+    double dest = std::numeric_limits<double>::quiet_NaN();
     Bullet(raylib::Vector2 position, float speed) : speed(speed), position(position) {
 
     }
-     void draw() const {
-        DrawCircleV(position, 5, raylib::Color::Blue());
-    }
-    void update() {
-        position.x += speed;
+    void shot();
+    void draw() {
+        if(still) {
+            if(speed > 0)
+            {
+                if(std::isnan(dest)) dest = std::numeric_limits<int>::max();
+            }
+            else
+            {
+                if(std::isnan(dest)) dest = std::numeric_limits<int>::min();
+            }
+            DrawLine(position.x, position.y, dest, position.y, BLACK);
+        }
     }
 };
 class Player
@@ -32,6 +45,7 @@ public:
     look_at direction = right;
     raylib::Color color;
     std::vector<Bullet> bullets;
+    action player_is;
     Player(raylib::Vector2 position, float speed, bool canJump, raylib::Color color)
         : position(position)
         , speed(speed)
@@ -39,9 +53,10 @@ public:
         , color(color)
     {
         direction = right;
+        player_is = waiting;
     }
-    void draw_player()const;
-    void draw_bullets() const;
+    void draw_player();
+    void draw_bullets();
     void update_bullets(const std::vector<EnviromentObject> *eni, std::vector<Enemies> *enemies);
     static void updatePlayer(Player *player, std::vector<EnviromentObject> *envObjs, std::vector<Enemies> *enemies, float delta);
     static void updateCamera(raylib::Camera2D *camera, const Player *player, int width, int height);

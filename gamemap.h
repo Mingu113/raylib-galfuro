@@ -5,6 +5,7 @@
 
 typedef struct EnviromentObject
 {
+    EnviromentObject();
     EnviromentObject(raylib::Rectangle rect, int blocking, raylib::Color color)
         : rect(rect)
         , blocking(blocking)

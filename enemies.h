@@ -10,6 +10,7 @@
 class Player;
 class Bullet;
 enum look_at {right = 1, left = -1};
+enum action {moving, attacking, waiting};
 class Enemies
 {
 public:
@@ -30,7 +31,7 @@ public:
     look_at last_direction;
     raylib::Vector2 last_seen_position = {0};
     //
-
+    Enemies();
     Enemies(raylib::Vector2 position, float health, float detection_range)
         : position(position)
         , health(health)
