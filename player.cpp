@@ -1,6 +1,7 @@
 #include "player.h"
 #include "raylib-cpp.hpp"
 #include <any>
+#include <iostream>
 #include <limits>
 #include <string>
 #include <typeinfo>
@@ -140,12 +141,15 @@ void Player::updatePlayer(Player *player, std::vector<EnviromentObject> *envObjs
         player->speed -= PLAYER_JUMP_SPD;
         player->canJump = false;
     }
-    if(raylib::Keyboard::IsKeyDown(KEY_Z) && can_shoot) {
+    if(raylib::Keyboard::IsKeyDown(KEY_Z)) {
         player->player_is = attacking;
-        float bullet_speed = 70;
-        player->bullets.emplace_back(Bullet((raylib::Vector2){player->position.GetX(), player->position.GetY() - 20}, player->direction == right ? bullet_speed : -bullet_speed));
-        can_shoot = false;
-        last_shot = GetTime();
+        if(can_shoot)
+        {
+            float bullet_speed = 70;
+            player->bullets.emplace_back(Bullet((raylib::Vector2){player->position.GetX(), player->position.GetY() - 20}, player->direction == right ? bullet_speed : -bullet_speed));
+            can_shoot = false;
+            last_shot = GetTime();
+        }
     }
     bool is_on_object = false;
     for (const auto &ei : *envObjs) {
@@ -183,6 +187,7 @@ void Player::updatePlayer(Player *player, std::vector<EnviromentObject> *envObjs
     } else
         player->canJump = true;
     player->update_bullets(envObjs, enemies);
+    player->player_anim[player->player_is].update();
 }
 // update the player camera
 void Player::updateCamera(raylib::Camera2D *camera, const Player *player, int width, int height)
@@ -208,10 +213,9 @@ void Player::updateCamera(raylib::Camera2D *camera, const Player *player, int wi
 void Player::draw_player() {
     float ballRadius = 20;
     this->draw_bullets();
-    DrawCircleV((raylib::Vector2){this->position.x, this->position.y - ballRadius},
-                ballRadius,
-                this->color);
-
+    player_anim[player_is].draw({position.x - player_anim[player_is].frameRec.width / 2, position.y - player_anim[player_is].frameRec.height}, this->direction);
+    // player_anim[player_is].draw({10,10}, this->direction);
+    DrawCircleV((raylib::Vector2){this->position.x, this->position.y - ballRadius}, ballRadius, this->color);
 }
 void Bullet::shot() {
     if (hit_time == 0)

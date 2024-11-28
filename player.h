@@ -1,5 +1,6 @@
 #ifndef PLAYER_H
 #define PLAYER_H
+#include <map>
 #define G 400
 #define PLAYER_JUMP_SPD 350.0f
 #define PLAYER_HOR_SPD 200.0f
@@ -7,6 +8,7 @@
 #include "raylib-cpp.hpp"
 #include "gamemap.h"
 #include "enemies.h"
+#include "animation.h"
 #include <limits>
 class Bullet
 {
@@ -46,12 +48,14 @@ public:
     raylib::Color color;
     std::vector<Bullet> bullets;
     action player_is;
-    Player(raylib::Vector2 position, float speed, bool canJump, raylib::Color color)
+    std::map<action, animation> player_anim;
+    Player(raylib::Vector2 position, float speed, bool canJump, raylib::Color color, std::map<action, animation> animation)
         : position(position)
         , speed(speed)
         , canJump(canJump)
         , color(color)
     {
+        player_anim = animation;
         direction = right;
         player_is = waiting;
     }

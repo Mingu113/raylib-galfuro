@@ -7,10 +7,9 @@
 
 #include "raylib-cpp.hpp"
 #include "gamemap.h"
+#include "animation.h"
 class Player;
 class Bullet;
-enum look_at {right = 1, left = -1};
-enum action {moving, attacking, waiting};
 class Enemies
 {
 public:
