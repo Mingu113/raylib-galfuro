@@ -18,13 +18,19 @@ int main(void)
                                               static_cast<float>(window.GetHeight() / 2)},
                             raylib::Vector2{player_original_position.GetX() + 20,
                                             player_original_position.GetY() + 20});
+    // I have no ideal how the code bellow even works
+    std::map<action, animation> player_anim;
+    player_anim[action::moving] = animation("move.png", 18);
+    player_anim[action::waiting] = animation("wait.png", 30);
+    player_anim[action::attacking] = animation("attack.png", 25);
     // Game objects
-    Player player(player_original_position, 1, true, raylib::Color::Black());
+    Player player(player_original_position, 1, true, raylib::Color::Black(), player_anim);
     GameMap map;
     std::vector<Enemies> enemies;
     enemies.emplace_back((raylib::Vector2){800, 0}, 50, 400);
     enemies.emplace_back((raylib::Vector2){100, 0}, 50, 400);
     enemies.emplace_back((raylib::Vector2){1000, 0}, 50, 400);
+    std::vector<Enemies> orig_enemies = enemies;
     window.SetTargetFPS(60);
     // Main loop
     while (!window.ShouldClose()) {
@@ -34,6 +40,7 @@ int main(void)
                 || raylib::Mouse::IsButtonPressed(MOUSE_LEFT_BUTTON))
                 currentScreen = GamePlayScreen;
             player.position = player_original_position;
+            enemies = orig_enemies;
             break;
         }
         case GamePlayScreen: {
@@ -48,7 +55,7 @@ int main(void)
                 if (enemies.at(i).isAlive) {
                     enemy.update(&player, &map.map_objects, delta);
                 } else {
-                    enemies.erase(enemies.begin() + i);
+                    enemies.erase(enemies.begin() + i); // feel dangerous, probably fine?
                 }
             }
             raylib::DrawText("Enemies count: " + std::to_string(enemies.size()), 10, 10, 25, BLACK);
@@ -60,7 +67,7 @@ int main(void)
             switch (currentScreen) {
             case Title: {
                 raylib::Text Text;
-                Text.Draw("Raylib with C++,\n move the ball with arrow keys\n"
+                Text.Draw("Raylib with C++,\n move with arrow keys\n"
                           "Press Enter to move to play screen\n"
                           "Or click the screen",
                           screenWidth / 4,

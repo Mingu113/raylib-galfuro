@@ -1,20 +1,26 @@
 #include "animation.h"
 
-animation::animation(std::string source, int number_of_frame)
+bool animation::operator==(const animation &other) const
 {
-    this->source.Load("source");
-    this->frameRec = raylib::Rectangle(0, 0, this->source.width, this->source.height);
+    return source.GetId() == other.source.GetId();
 }
 
-void animation::update()
+animation::animation(std::string source, int number_of_frame)
 {
-    this->frame_counter++;
-    if(frame_counter >= 60 / frames_speed)
-    {
-        frame_counter = 0;
-        current_frame++;
+    this->source.Load(source);
+    this->number_of_frames = number_of_frame;
+    this->frameRec = raylib::Rectangle(0, 0, this->source.width / number_of_frame, this->source.height);
+}
 
-        if(current_frame > number_of_frames) current_frame = 0;
-        frameRec.x = current_frame * (source.width / number_of_frames);
+
+
+void animation::draw(raylib::Vector2 pos, look_at direction)
+{
+    if(direction == left)
+    {
+        raylib::Rectangle rec = frameRec;
+        rec.width *= -1;
+        source.Draw(rec, pos, WHITE);
     }
+    else source.Draw(frameRec, pos, WHITE);
 }
