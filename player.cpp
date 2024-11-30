@@ -21,6 +21,7 @@ void Player::update_bullets(const std::vector<EnviromentObject> *eni, std::vecto
         int shortest_distance = std::numeric_limits<int>::max();
         double dest;
         auto& bullet = bullets.at(index);
+        // delete the bullet after draw it
         if(bullet.hit_time != 0 && GetTime() - bullet.stay >= bullet.hit_time)
         {
             bullets.erase(bullets.begin() + index);
@@ -110,87 +111,89 @@ void Player::update_bullets(const std::vector<EnviromentObject> *eni, std::vecto
         if(bullet.position.x > position.x + 1000 + 500 || bullet.position.x < position.x - 1000 - 500) { // Ideally, player pos + screen width + a max distance, this is hardcoded and is not good
             bullets.erase(bullets.begin() + index); // remove that bullet
         }
-        // I may check for y too, but it will eventually go above player, so no need
     */
     }
 }
 // Update player movement, action and it objects (bullets)
-void Player::updatePlayer(Player *player, std::vector<EnviromentObject> *envObjs, std::vector<Enemies> *enemies, float delta)
+void Player::updatePlayer(std::vector<EnviromentObject> *envObjs, std::vector<Enemies> *enemies, float delta)
 {
     // This is for cool down so the player can't shoot 1 bullet per frame, turning it into laser, and lag the game. and also unrealisitc
     double cool_down = 0.2;
     static bool can_shoot = true;
     static double last_shot;
-    player->player_is = waiting;
+    player_is = waiting;
     if(GetTime() - last_shot >= cool_down) {
         can_shoot = true;
     }
     if (raylib::Keyboard::IsKeyDown(KEY_RIGHT))
     {
-        player->player_is = moving;
-        player->position.x += PLAYER_HOR_SPD * delta;
-        player->direction = right;
+        player_is = moving;
+        position.x += PLAYER_HOR_SPD * delta;
+        direction = right;
     }
     if (raylib::Keyboard::IsKeyDown(KEY_LEFT))
     {
-        player->player_is = moving;
-        player->position.x -= PLAYER_HOR_SPD * delta;
-        player->direction = left;
+        player_is = moving;
+        position.x -= PLAYER_HOR_SPD * delta;
+        direction = left;
     }
-    if (raylib::Keyboard::IsKeyDown(KEY_SPACE) && player->canJump) {
-        player->speed -= PLAYER_JUMP_SPD;
-        player->canJump = false;
+    if (raylib::Keyboard::IsKeyDown(KEY_SPACE) && canJump) {
+        speed -= PLAYER_JUMP_SPD;
+        canJump = false;
     }
     if(raylib::Keyboard::IsKeyDown(KEY_Z)) {
-        player->player_is = attacking;
+        player_is = attacking;
         if(can_shoot)
         {
             float bullet_speed = 70;
-            player->bullets.emplace_back(Bullet((raylib::Vector2){player->position.GetX(), player->position.GetY() - 20}, player->direction == right ? bullet_speed : -bullet_speed));
+            bullets.emplace_back(Bullet((raylib::Vector2){position.GetX(), position.GetY() - 20}, direction == right ? bullet_speed : -bullet_speed));
             can_shoot = false;
             last_shot = GetTime();
         }
     }
+    // Player physic logic
     bool is_on_object = false;
     for (const auto &ei : *envObjs) {
-        Vector2 *p = &(player->position);
+        Vector2 p = position;
         if (ei.blocking){
-            if(ei.rect.x <= p->x &&
-            ei.rect.x + ei.rect.width >= p->x &&
-            ei.rect.y >= p->y)
+            if(ei.rect.x <= p.x &&
+            ei.rect.x + ei.rect.width >= p.x &&
+            ei.rect.y >= p.y)
             {
-            if(ei.rect.y <= p->y + player->speed * delta)
+            if(ei.rect.y <= p.y + speed * delta)
                 {
                 is_on_object = true;
-                player->speed = 0.0f;
-                p->y = ei.rect.y;
+                speed = 0.0f;
+                p.y = ei.rect.y;
                 }
             }
-            if(player->position.CheckCollision(ei.rect) && p->y > ei.rect.y) {
-                if(p->x > ei.rect.x && p->x < ei.rect.x + 10) {
-                    p->x = ei.rect.x;
+            // fix this
+            if(position.CheckCollision(ei.rect) && p.y > ei.rect.y) {
+                if(p.x > ei.rect.x && p.x < ei.rect.x + 10) {
+                    p.x = ei.rect.x;
                 } else
-                if(p->x < ei.rect.x + ei.rect.width && p->x > ei.rect.x + ei.rect.width - 10) {
-                    p->x = ei.rect.x + ei.rect.width;
+                if(p.x < ei.rect.x + ei.rect.width && p.x > ei.rect.x + ei.rect.width - 10) {
+                    p.x = ei.rect.x + ei.rect.width;
                 } else
-                if(p->y <= ei.rect.y + ei.rect.height) {
-                    player->speed = 0.0f;
-                    p->y = ei.rect.y + ei.rect.height;
+                if(p.y <= ei.rect.y + ei.rect.height) {
+                    speed = 0.0f;
+                    p.y = ei.rect.y + ei.rect.height;
                 }
             }
         }
     }
     if (!is_on_object) {
-        player->position.y += player->speed * delta;
-        player->speed += G * delta;
-        player->canJump = false;
+        position.y += speed * delta;
+        speed += G * delta;
+        canJump = false;
     } else
-        player->canJump = true;
-    player->update_bullets(envObjs, enemies);
-    player->player_anim[player->player_is].update();
-}
+        canJump = true;
+    size.SetPosition({position.x - size.GetWidth() / 2, position.y - size.height});
+    update_bullets(envObjs, enemies);
+    player_anim[player_is].update();
 // update the player camera
-void Player::updateCamera(raylib::Camera2D *camera, const Player *player, int width, int height)
+}
+void Player::updateCamera(raylib::Camera2D *camera, int width, int height)
 {
     static raylib::Vector2 bbox(0.2f, 0.05f);
     raylib::Vector2 bboxWorldMin = camera->GetScreenToWorld(
@@ -200,22 +203,23 @@ void Player::updateCamera(raylib::Camera2D *camera, const Player *player, int wi
 
     camera->offset = (raylib::Vector2){(1 - bbox.x) * 0.5f * width, (1 - bbox.y) * 0.5f * height};
 
-    if (player->position.x < bboxWorldMin.x)
-        camera->target.x = player->position.x;
-    if (player->position.y < bboxWorldMin.y)
-        camera->target.y = player->position.y;
-    if (player->position.x > bboxWorldMax.x)
-        camera->target.x = bboxWorldMin.x + (player->position.x - bboxWorldMax.x);
-    if (player->position.y > bboxWorldMax.y)
-        camera->target.y = bboxWorldMin.y + (player->position.y - bboxWorldMax.y);
+    if (position.x < bboxWorldMin.x)
+        camera->target.x = position.x;
+    if (position.y < bboxWorldMin.y)
+        camera->target.y = position.y;
+    if (position.x > bboxWorldMax.x)
+        camera->target.x = bboxWorldMin.x + (position.x - bboxWorldMax.x);
+    if (position.y > bboxWorldMax.y)
+        camera->target.y = bboxWorldMin.y + (position.y - bboxWorldMax.y);
 }
 //  Draw player and bullets that it have shot
 void Player::draw_player() {
-    float ballRadius = 20;
     this->draw_bullets();
     player_anim[player_is].draw({position.x - player_anim[player_is].frameRec.width / 2, position.y - player_anim[player_is].frameRec.height}, this->direction);
     // player_anim[player_is].draw({10,10}, this->direction);
-    DrawCircleV((raylib::Vector2){this->position.x, this->position.y - ballRadius}, ballRadius, this->color);
+    // DrawCircleV((raylib::Vector2){this->position.x, this->position.y - ballRadius}, ballRadius, this->color);
+    size.DrawLines(RED);
+    position.DrawCircle(20, BLUE);
 }
 void Bullet::shot() {
     if (hit_time == 0)

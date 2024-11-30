@@ -48,8 +48,8 @@ int main(void)
             if (raylib::Keyboard::IsKeyPressed(KEY_R))
                 currentScreen = GameScreen::Title;
             float delta = window.GetFrameTime();
-            Player::updatePlayer(&player, &map.map_objects, &enemies, delta);
-            Player::updateCamera(&camera, &player, window.GetWidth(), window.GetHeight());
+            player.updatePlayer(&map.map_objects, &enemies, delta);
+            player.updateCamera(&camera, window.GetWidth(), window.GetHeight());
             for (size_t i = 0; i < enemies.size(); ++i) {
                 auto &enemy(enemies.at(i));
                 if (enemies.at(i).isAlive) {
