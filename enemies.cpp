@@ -74,7 +74,7 @@ void Enemies::update(Player *player, std::vector<EnviromentObject> *enobj, float
         double cool_down = 2;
         double hunt_cool_down = 3;
 
-        if (player->position.CheckCollision(detection)) {
+        if (player->size.CheckCollision(detection)) {
             spotted = true;
             last_pos = rect.GetPosition();
             last_direction = direction;

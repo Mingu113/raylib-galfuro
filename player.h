@@ -48,6 +48,7 @@ public:
     raylib::Color color;
     std::vector<Bullet> bullets;
     action player_is;
+    raylib::Rectangle size;
     std::map<action, animation> player_anim;
     Player(raylib::Vector2 position, float speed, bool canJump, raylib::Color color, std::map<action, animation> animation)
         : position(position)
@@ -58,12 +59,14 @@ public:
         player_anim = animation;
         direction = right;
         player_is = waiting;
+        size = player_anim[action::waiting].frameRec;
+        size.SetPosition(position);
     }
     void draw_player();
     void draw_bullets();
     void update_bullets(const std::vector<EnviromentObject> *eni, std::vector<Enemies> *enemies);
-    static void updatePlayer(Player *player, std::vector<EnviromentObject> *envObjs, std::vector<Enemies> *enemies, float delta);
-    static void updateCamera(raylib::Camera2D *camera, const Player *player, int width, int height);
+    void updatePlayer(std::vector<EnviromentObject> *envObjs, std::vector<Enemies> *enemies, float delta);
+    void updateCamera(raylib::Camera2D *camera, int width, int height);
 
 };
 
