@@ -59,6 +59,7 @@ int main(void)
                 }
             }
             raylib::DrawText("Enemies count: " + std::to_string(enemies.size()), 10, 10, 25, BLACK);
+            raylib::DrawText("FPS: " + std::to_string(window.GetFPS()), 10, 35, 25, BLACK);
         }
         }
         BeginDrawing();
