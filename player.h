@@ -19,6 +19,7 @@ public:
     double stay = 0.1;
     double hit_time = 0;
     bool still = true;
+    bool do_damage = true;
     double dest = std::numeric_limits<double>::quiet_NaN();
     Bullet(raylib::Vector2 position, float speed) : speed(speed), position(position) {
 
