@@ -145,7 +145,11 @@ void Player::updatePlayer(std::vector<EnviromentObject> *envObjs, std::vector<En
         player_is = attacking;
         if(can_shoot)
         {
-            bullets.emplace_back(Bullet((raylib::Vector2){position.GetX(), position.GetY() - 20}, direction == right ? 1 : -1));
+            bullets.emplace_back(Bullet((raylib::Vector2)
+                                        {direction == right ? size.GetX() + size.GetWidth() : size.GetX(),
+                                         size.GetY() + size.GetHeight() / 2},
+                                        direction == right ? 1 : -1)
+                                 );
             can_shoot = false;
             last_shot = GetTime();
         }
@@ -156,9 +160,10 @@ void Player::updatePlayer(std::vector<EnviromentObject> *envObjs, std::vector<En
         Vector2 p = position;
         if (ei.blocking){
             // Above
-            if(ei.rect.x <= p.x &&
-                ei.rect.x + ei.rect.width >= p.x &&
-                ei.rect.y >= p.y)
+            // use size.checkCollision some how doesn't work, and I do not know why
+            if(ei.rect.x <= size.x + size.width &&
+                ei.rect.x + ei.rect.width >= size.x &&
+                ei.rect.y >= size.y + size.height)
             {
             if(ei.rect.y <= size.y + size.height + speed * delta)
                 {
@@ -167,20 +172,21 @@ void Player::updatePlayer(std::vector<EnviromentObject> *envObjs, std::vector<En
                 position.y = ei.rect.y;
                 }
             }
-            // Side and bellow
-            if(position.CheckCollision(ei.rect) && p.y > ei.rect.y) {
+            // Sides and bellow
+            else
+            if(size.CheckCollision(ei.rect) && size.y + size.height > ei.rect.y) {
                 // Left
-                if(p.x >= ei.rect.x && p.x < ei.rect.x + 5) {
-                    position.x = ei.rect.x;
+                if(size.x + size.width >= ei.rect.x && size.x + size.width < ei.rect.x + 5) {
+                    position.x = ei.rect.x - size.width / 2;
                 } else
                 // Right
-                if(p.x <= ei.rect.x + ei.rect.width && p.x > ei.rect.x + ei.rect.width - 5) {
-                    position.x = ei.rect.x + ei.rect.width;
+                if(size.x <= ei.rect.x + ei.rect.width && size.x > ei.rect.x + ei.rect.width - 5) {
+                    position.x = ei.rect.x + ei.rect.width + size.width / 2;
                 } else
                 // Bellow
-                if(p.y <= ei.rect.y + ei.rect.height) {
+                if(size.y <= ei.rect.y + ei.rect.height) {
                     speed = 0.0f;
-                    position.y = ei.rect.y + ei.rect.height;
+                    position.y = ei.rect.y + ei.rect.height + size.height;
                 }
             }
         }
