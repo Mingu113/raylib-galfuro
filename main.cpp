@@ -11,7 +11,7 @@ int main(void)
     // init
     raylib::Color background_color(raylib::Color::White());
     raylib::Window window(screenWidth, screenHeight, "Raylib in C++");
-    raylib::Vector2 player_original_position((float) screenWidth / 3, (float) 0);
+    raylib::Vector2 player_original_position(0, 0);
     // raylib::Texture2D background((raylib::Image) {"res/image.png"});
     GameScreen currentScreen = GameScreen::Title;
     raylib::Camera2D camera((raylib::Vector2){static_cast<float>(window.GetWidth() / 2),
