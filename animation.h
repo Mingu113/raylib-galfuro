@@ -31,6 +31,8 @@ public:
         return *this;
     }
     animation(std::string source, int number_of_frame);
+    /// I tried to resize the image sources, while it does resized and is smaller, the animtion went horribly wrong
+    /// and I do not know why
     void update()
     {
         this->frame_counter++;

@@ -1,6 +1,5 @@
 #include "enemies.h"
 #include "player.h"
-#include <iostream>
 
 //  Even though the enemy behaviour should behave per enemies, but somehow they act all the same time.
 // It seem that even though the static varibles is created at run time, it is used across the class?
@@ -140,7 +139,6 @@ void Enemies::update(Player *player, std::vector<EnviromentObject> *enobj, float
             // stand in one place
             if(GetTime() - last_jump >= jump_cool_down && canJump && rect.CheckCollision(last_checked_pos))
             {
-                std::cout << "Jumped\n";
                 speed -= PLAYER_JUMP_SPD;
                 canJump = false;
                 last_jump = GetTime();
