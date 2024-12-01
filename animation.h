@@ -2,7 +2,7 @@
 #define ANIMATION_H
 #include "raylib-cpp.hpp"
 enum look_at {right = 1, left = -1};
-enum action {moving, attacking, waiting};
+enum action {moving, attacking, waiting, shoot};
 class animation
 {
 public:
@@ -49,6 +49,10 @@ public:
     void reset_frame()
     {
         current_frame = 0;
+    }
+    void freeze()
+    {
+        current_frame = this->current_frame - frame_counter;
     }
 private:
     int number_of_frames = 1;

@@ -18,18 +18,18 @@ int main(void)
                                               static_cast<float>(window.GetHeight() / 2)},
                             raylib::Vector2{player_original_position.GetX() + 20,
                                             player_original_position.GetY() + 20});
-    // I have no ideal how the code bellow even works
     std::map<action, animation> player_anim;
     player_anim[action::moving] = animation("move.png", 18);
     player_anim[action::waiting] = animation("wait.png", 30);
-    player_anim[action::attacking] = animation("attack.png", 25);
+    player_anim[action::attacking] = animation("example.png", 1);
+    player_anim[action::shoot] = animation("shoot.png", 4);
     // Game objects
     Player player(player_original_position, 1, true, raylib::Color::Black(), player_anim);
     GameMap map;
     std::vector<Enemies> enemies;
-    enemies.emplace_back((raylib::Vector2){800, 0}, 50, 400);
-    enemies.emplace_back((raylib::Vector2){100, 0}, 50, 400);
-    enemies.emplace_back((raylib::Vector2){1000, 0}, 50, 400);
+    enemies.emplace_back((raylib::Vector2){800, 0}, 100, 400);
+    enemies.emplace_back((raylib::Vector2){100, 0}, 100, 400);
+    enemies.emplace_back((raylib::Vector2){1000, 0}, 100, 400);
     std::vector<Enemies> orig_enemies = enemies;
     window.SetTargetFPS(60);
     // Main loop

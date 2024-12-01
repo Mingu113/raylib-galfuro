@@ -20,7 +20,7 @@ public:
     raylib::Rectangle rect;
     bool canJump = true;
     float speed;
-    float health;
+    double health = 0;
     bool isAlive;
     //
     bool isHunting = false;

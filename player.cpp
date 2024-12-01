@@ -1,7 +1,6 @@
 #include "player.h"
 #include "raylib-cpp.hpp"
 #include <any>
-#include <iostream>
 #include <limits>
 #include <string>
 #include <typeinfo>
@@ -84,8 +83,9 @@ void Player::update_bullets(const std::vector<EnviromentObject> *eni, std::vecto
                 const std::string str(nearest.type().name());
                 bullet.dest = dest;
                 if (str.find("Enviroment") != std::string::npos) {
-                } else if (str.find("Enemies") != std::string::npos) {
-                    enemies->at(nearest_index).got_hit(bullets.at(index), 25);
+                } else if (str.find("Enemies") != std::string::npos && bullet.do_damage) {
+                    enemies->at(nearest_index).got_hit(bullet, 10);
+                    bullet.do_damage = false; // <-- so the damage won't be duplicated because the bullet is still being drawn on screen
                 }
             }
         }
@@ -121,30 +121,34 @@ void Player::updatePlayer(std::vector<EnviromentObject> *envObjs, std::vector<En
     double cool_down = 0.2;
     static bool can_shoot = true;
     static double last_shot;
+    static int bullet_count = 0;
     player_is = waiting;
     if(GetTime() - last_shot >= cool_down) {
         can_shoot = true;
     }
-    if (raylib::Keyboard::IsKeyDown(KEY_RIGHT))
+    if (raylib::Keyboard::IsKeyDown(KEY_RIGHT) && !raylib::Keyboard::IsKeyDown(KEY_Z))
     {
         player_is = moving;
         position.x += PLAYER_HOR_SPD * delta;
         direction = right;
     }
-    if (raylib::Keyboard::IsKeyDown(KEY_LEFT))
+    if (raylib::Keyboard::IsKeyDown(KEY_LEFT) && !raylib::Keyboard::IsKeyDown(KEY_Z))
     {
         player_is = moving;
         position.x -= PLAYER_HOR_SPD * delta;
         direction = left;
     }
-    if (raylib::Keyboard::IsKeyDown(KEY_SPACE) && canJump) {
+    if (raylib::Keyboard::IsKeyDown(KEY_SPACE) && canJump && !raylib::Keyboard::IsKeyDown(KEY_Z)) {
         speed -= PLAYER_JUMP_SPD;
         canJump = false;
     }
     if(raylib::Keyboard::IsKeyDown(KEY_Z)) {
         player_is = attacking;
+        player_anim[action::shoot].reset_frame();
         if(can_shoot)
         {
+            player_anim[action::attacking].freeze();
+            player_is = shoot;
             bullets.emplace_back(Bullet((raylib::Vector2)
                                         {direction == right ? size.GetX() + size.GetWidth() : size.GetX(),
                                          size.GetY() + size.GetHeight() / 2},
@@ -152,6 +156,7 @@ void Player::updatePlayer(std::vector<EnviromentObject> *envObjs, std::vector<En
                                  );
             can_shoot = false;
             last_shot = GetTime();
+            bullet_count++;
         }
     }
     // Player physic logic
@@ -192,6 +197,8 @@ void Player::updatePlayer(std::vector<EnviromentObject> *envObjs, std::vector<En
         }
     }
     if (!is_on_object) {
+        if(!raylib::Keyboard::IsKeyDown(KEY_Z))
+        {player_anim[player_is].freeze();}
         position.y += speed * delta;
         speed += G * delta;
         canJump = false;
@@ -200,6 +207,7 @@ void Player::updatePlayer(std::vector<EnviromentObject> *envObjs, std::vector<En
     size.SetPosition({position.x - size.width / 2, position.y - size.height});
     update_bullets(envObjs, enemies);
     player_anim[player_is].update();
+    raylib::DrawText("Bullets shot: " + std::to_string(bullet_count), 10, 50, 25, BLACK);
 }
 // update the player camera
 void Player::updateCamera(raylib::Camera2D *camera, int width, int height)

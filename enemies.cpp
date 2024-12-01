@@ -27,7 +27,7 @@ void Enemies::move_to(raylib::Vector2 &destination, float delta)
 void Enemies::move_to(Player &player, float delta)
 {
     // don't go to player's x, sekuhara is another type of game
-    /// Fix later
+    // FIXME
     float distance = 200;
     if (this->position.x < player.position.x + distance) {
         direction = right;
@@ -162,11 +162,13 @@ void Enemies::draw() const
     detection.DrawLines(PINK);
     raylib::Color health = this->health > 0 ? raylib::Color::Green() : raylib::Color::Red();
     rect.Draw(health);
+    raylib::DrawText(std::to_string(this->health), rect.x + rect.width / 2, rect.y - 10, 25, BLACK);
     position.DrawCircle(10, RED);
 }
 
 void Enemies::got_hit(Bullet bullet, float damage)
 {
+    // Because the damage is according to the game FPS, so it every frame is count?
     // bullet is from the left
     if (bullet.position.x < this->position.x) {
         direction = left;
