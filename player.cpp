@@ -145,7 +145,11 @@ void Player::updatePlayer(std::vector<EnviromentObject> *envObjs, std::vector<En
         player_is = attacking;
         if(can_shoot)
         {
-            bullets.emplace_back(Bullet((raylib::Vector2){position.GetX(), position.GetY() - 20}, direction == right ? 1 : -1));
+            bullets.emplace_back(Bullet((raylib::Vector2)
+                                        {direction == right ? size.GetX() + size.GetWidth() : size.GetX(),
+                                         size.GetY() + size.GetHeight() / 2},
+                                        direction == right ? 1 : -1)
+                                 );
             can_shoot = false;
             last_shot = GetTime();
         }
