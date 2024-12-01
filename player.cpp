@@ -145,8 +145,7 @@ void Player::updatePlayer(std::vector<EnviromentObject> *envObjs, std::vector<En
         player_is = attacking;
         if(can_shoot)
         {
-            float bullet_speed = 70;
-            bullets.emplace_back(Bullet((raylib::Vector2){position.GetX(), position.GetY() - 20}, direction == right ? bullet_speed : -bullet_speed));
+            bullets.emplace_back(Bullet((raylib::Vector2){position.GetX(), position.GetY() - 20}, direction == right ? 1 : -1));
             can_shoot = false;
             last_shot = GetTime();
         }
@@ -156,28 +155,32 @@ void Player::updatePlayer(std::vector<EnviromentObject> *envObjs, std::vector<En
     for (const auto &ei : *envObjs) {
         Vector2 p = position;
         if (ei.blocking){
+            // Above
             if(ei.rect.x <= p.x &&
-            ei.rect.x + ei.rect.width >= p.x &&
-            ei.rect.y >= p.y)
+                ei.rect.x + ei.rect.width >= p.x &&
+                ei.rect.y >= p.y)
             {
-            if(ei.rect.y <= p.y + speed * delta)
+            if(ei.rect.y <= size.y + size.height + speed * delta)
                 {
                 is_on_object = true;
                 speed = 0.0f;
-                p.y = ei.rect.y;
+                position.y = ei.rect.y;
                 }
             }
-            // fix this
+            // Side and bellow
             if(position.CheckCollision(ei.rect) && p.y > ei.rect.y) {
-                if(p.x > ei.rect.x && p.x < ei.rect.x + 10) {
-                    p.x = ei.rect.x;
+                // Left
+                if(p.x >= ei.rect.x && p.x < ei.rect.x + 5) {
+                    position.x = ei.rect.x;
                 } else
-                if(p.x < ei.rect.x + ei.rect.width && p.x > ei.rect.x + ei.rect.width - 10) {
-                    p.x = ei.rect.x + ei.rect.width;
+                // Right
+                if(p.x <= ei.rect.x + ei.rect.width && p.x > ei.rect.x + ei.rect.width - 5) {
+                    position.x = ei.rect.x + ei.rect.width;
                 } else
+                // Bellow
                 if(p.y <= ei.rect.y + ei.rect.height) {
                     speed = 0.0f;
-                    p.y = ei.rect.y + ei.rect.height;
+                    position.y = ei.rect.y + ei.rect.height;
                 }
             }
         }
@@ -188,11 +191,11 @@ void Player::updatePlayer(std::vector<EnviromentObject> *envObjs, std::vector<En
         canJump = false;
     } else
         canJump = true;
-    size.SetPosition({position.x - size.GetWidth() / 2, position.y - size.height});
+    size.SetPosition({position.x - size.width / 2, position.y - size.height});
     update_bullets(envObjs, enemies);
     player_anim[player_is].update();
-// update the player camera
 }
+// update the player camera
 void Player::updateCamera(raylib::Camera2D *camera, int width, int height)
 {
     static raylib::Vector2 bbox(0.2f, 0.05f);
