@@ -28,17 +28,28 @@ void Enemies::move_to(Player &player, float delta)
 {
     // don't go to player's x, sekuhara is another type of game
     // FIXME
-    float distance = 200;
-    if (this->position.x < player.position.x + distance) {
+    // the enemy will have to stay in a zone to keep distance, but have to stand in the zone to not keep moving
+    const float distance = 200;
+    const float move_speed = ENEMY_SPD * delta;
+    const float distance_to_player = position.x - player.position.x;
+    if(std::abs(distance_to_player) >= detection.width - distance && std::abs(distance_to_player) <= detection.width)
+    {
+
+    } else
+    if (distance_to_player <= distance) {
         direction = right;
-        this->position.x += ENEMY_SPD * delta;
+        this->position.x += move_speed;
         if (this->position.x > player.position.x + distance)
             this->position.x = player.position.x + distance;
-    } else if (this->position.x > player.position.x - distance) {
+    } else if (this->position.x >= player.position.x - distance) {
         direction = left;
-        this->position.x -= ENEMY_SPD * delta;
+        this->position.x -= move_speed;
         if (this->position.x < player.position.x - distance)
             this->position.x = player.position.x - distance;
+    }
+    if(position.x == player.position.x + distance || position.x == player.position.x - distance)
+    {
+        player.position.x < position.x ? direction = left : direction = right;
     }
 }
 // update enemies per frame
@@ -136,8 +147,8 @@ void Enemies::update(Player *player, std::vector<EnviromentObject> *enobj, float
                 last_checked_pos = rect.GetPosition();
                 check_time = GetTime();
             }
-            // stand in one place
-            if(GetTime() - last_jump >= jump_cool_down && canJump && rect.CheckCollision(last_checked_pos))
+            // stand in one place and the player is out of detection range
+            if(GetTime() - last_jump >= jump_cool_down && canJump && rect.CheckCollision(last_checked_pos) && std::abs(player->position.x - position.x) >= detection.width)
             {
                 speed -= PLAYER_JUMP_SPD;
                 canJump = false;

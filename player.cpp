@@ -150,7 +150,7 @@ void Player::updatePlayer(std::vector<EnviromentObject> *envObjs, std::vector<En
             player_anim[action::attacking].freeze();
             player_is = shoot;
             bullets.emplace_back(Bullet((raylib::Vector2)
-                                        {direction == right ? size.GetX() + size.GetWidth() : size.GetX(),
+                                        {position.x,
                                          size.GetY() + size.GetHeight() / 2},
                                         direction == right ? 1 : -1)
                                  );
